@@ -1,16 +1,29 @@
 import * as React from "react";
 
 export interface TrunkState {
-  position: number,
-  isEnd: boolean,
-  isBeginning: boolean,
-  length: number
+  position: number;
+  isEnd: boolean;
+  isBeginning: boolean;
+  length: number;
 }
 
 export interface TrunkProps {
-  navigation: React.ReactNode
+  navigation: React.ReactElement<any>;
 }
 
+export interface BranchProps {
+  component: React.ReactNode;
+  render: (props: any) => React.ReactNode;
+}
+
+export interface NavActions {
+  goDirectToPosition: (position: number) => void;
+  goToPrevious: () => void;
+  goToNext: () => void;
+}
+export interface Context extends TrunkState, NavActions {}
+
+const lengthCreator = (length: number): any[] => Array(length).fill();
 
 const DefaultNavigation = ({
   goToPrevious,
@@ -20,24 +33,22 @@ const DefaultNavigation = ({
   position,
   isBeginning,
   isEnd
-}) => (
+}: Context) => (
   <nav>
     <button onClick={goToPrevious} disabled={isBeginning}>
       Go to Previous
     </button>
     <ul>
-      {Array(length)
-        .fill()
-        .map((a, i) => (
-          <li key={i}>
-            <svg
-              width={20}
-              height={20}
-              active={i === position}
-              onClick={() => goDirectToPosition && goDirectToPosition(i)}
-            />
-          </li>
-        ))}
+      {lengthCreator(length).map((a: any, i: number) => (
+        <li key={i}>
+          <svg
+            width={20}
+            height={20}
+            fill={i === position ? " " : " "}
+            onClick={() => goDirectToPosition && goDirectToPosition(i)}
+          />
+        </li>
+      ))}
     </ul>
     <button onClick={goToNext} disabled={isEnd}>
       Go to Next
@@ -45,9 +56,9 @@ const DefaultNavigation = ({
   </nav>
 );
 
-const TrunkContext = React.createContext();
+const TrunkContext = React.createContext({});
 
-const nextPosition = ({ position, length, isEnd }) => {
+const nextPosition = ({ position, length, isEnd }: TrunkState) => {
   let currentPosition = position !== length ? position + 1 : length;
   return {
     position: currentPosition,
@@ -56,7 +67,7 @@ const nextPosition = ({ position, length, isEnd }) => {
   };
 };
 
-const prevPosition = ({ position, length }) => {
+const prevPosition = ({ position, length }: TrunkState) => {
   let currentPosition = position !== length ? position - 1 : 0;
 
   return {
@@ -65,8 +76,6 @@ const prevPosition = ({ position, length }) => {
     isEnd: currentPosition === length - 1
   };
 };
-
-
 
 export class Trunk extends React.Component<TrunkProps, TrunkState> {
   state = {
@@ -80,7 +89,7 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
     navigation: DefaultNavigation
   };
 
-  goDirectToPosition = position => this.setState({ position });
+  goDirectToPosition = (position: number) => this.setState({ position });
 
   goToPrevious = () => this.setState(prevPosition);
 
@@ -98,11 +107,11 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
         }}
       >
         <TrunkContext.Consumer>
-          {context => <BranchNav {...context} />}
+          {(context: Context) => <BranchNav {...context} />}
         </TrunkContext.Consumer>
         {React.Children.map(
           children,
-          (child, idx) =>
+          (child: React.ReactElement<any>, idx: number) =>
             // child.type.name === 'Branch' &&
             this.state.position === idx &&
             React.cloneElement(child, { ...this.state })
@@ -114,13 +123,13 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
 
 // TODO: throw invariant warning if using both Component + render().
 
-export class Branch extends Component {
+export class Branch extends React.Component<BranchProps, void> {
   render() {
     const { component: Cx, render, ...props } = this.props;
 
     return (
       <TrunkContext.Consumer>
-        {context =>
+        {(context: Context) =>
           Cx ? <Cx {...props} {...context} /> : render({ ...props, ...context })
         }
       </TrunkContext.Consumer>
