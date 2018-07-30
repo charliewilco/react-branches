@@ -1,0 +1,17 @@
+{
+  "name": "@charliewilco/branches",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "yarn build",
+    "dev": "parcel example/index.html"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^16.4.7",
+    "parcel-bundler": "^1.9.7",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "typescript": "^3.0.1"
+  }
+}
