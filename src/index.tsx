@@ -7,23 +7,26 @@ export interface TrunkState {
   length: number;
 }
 
-export interface TrunkProps {
-  navigation: React.ReactElement<any>;
-}
-
-export interface BranchProps {
-  component: React.ReactNode;
-  render: (props: any) => React.ReactNode;
-}
-
 export interface NavActions {
   goDirectToPosition: (position: number) => void;
   goToPrevious: () => void;
   goToNext: () => void;
 }
+
 export interface Context extends TrunkState, NavActions {}
 
-const lengthCreator = (length: number): any[] => Array(length).fill();
+export interface TrunkProps {
+  navigation: new (props: any) => React.Component<any>;
+}
+
+export interface BranchProps {
+  component:
+    | React.ComponentType<Context & any>
+    | React.StatelessComponent<Context & any>;
+  render: (props: any) => React.ReactNode;
+}
+
+const lengthCreator = (length: number): any[] => Array<number>(length).fill(0);
 
 const DefaultNavigation = ({
   goToPrevious,
@@ -60,10 +63,11 @@ const TrunkContext = React.createContext({});
 
 const nextPosition = ({ position, length, isEnd }: TrunkState) => {
   let currentPosition = position !== length ? position + 1 : length;
+  let onlyOne = position === length;
   return {
     position: currentPosition,
     isBeginning: currentPosition === 0,
-    isEnd: currentPosition === length - 1
+    isEnd: onlyOne || currentPosition === length - 1
   };
 };
 
@@ -104,8 +108,7 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
           goToPrevious: this.goToPrevious,
           goToNext: this.goToNext,
           goDirectToPosition: this.goDirectToPosition
-        }}
-      >
+        }}>
         <TrunkContext.Consumer>
           {(context: Context) => <BranchNav {...context} />}
         </TrunkContext.Consumer>
@@ -123,7 +126,7 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
 
 // TODO: throw invariant warning if using both Component + render().
 
-export class Branch extends React.Component<BranchProps, void> {
+export class Branch extends React.Component<BranchProps, {}> {
   render() {
     const { component: Cx, render, ...props } = this.props;
 

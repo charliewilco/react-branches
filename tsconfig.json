@@ -12,17 +12,9 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strictNullChecks": false
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "lib": [
-    "dom",
-    "es2015",
-    "es2016"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+  "lib": ["dom", "es2015", "es2016"]
 }
