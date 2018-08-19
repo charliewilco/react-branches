@@ -1,6 +1,7 @@
 {
   "name": "@charliewilco/branches",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "charliewilco/react-branches",
   "scripts": {
     "precommit": "lint-staged",
