@@ -20,10 +20,10 @@ export interface TrunkProps {
 }
 
 export interface BranchProps {
-  component:
+  component?:
     | React.ComponentType<Context & any>
     | React.StatelessComponent<Context & any>;
-  render: (props: any) => React.ReactNode;
+  render?: (props: any) => React.ReactNode;
 }
 
 const lengthCreator = (length: number): any[] => Array<number>(length).fill(0);
@@ -126,9 +126,9 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
 
 // TODO: throw invariant warning if using both Component + render().
 
-export class Branch extends React.Component<BranchProps, {}> {
+export class Branch<T> extends React.Component<BranchProps & T, {}> {
   render() {
-    const { component: Cx, render, ...props } = this.props;
+    const { component: Cx, render, ...props } = this.props as any;
 
     return (
       <TrunkContext.Consumer>
