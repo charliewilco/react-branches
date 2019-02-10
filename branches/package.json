@@ -1,5 +1,5 @@
 {
-  "name": "@charliewilco/branches",
+  "name": "react-branches",
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
