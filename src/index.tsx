@@ -13,7 +13,7 @@ export interface NavActions {
   goToNext: () => void;
 }
 
-export interface Context extends TrunkState, NavActions {}
+export interface TrunkContext extends TrunkState, NavActions {}
 
 export interface TrunkProps {
   navigation: new (props: any) => React.Component<any>;
@@ -21,26 +21,18 @@ export interface TrunkProps {
 
 export interface BranchProps {
   component?:
-    | React.ComponentType<Context & any>
-    | React.StatelessComponent<Context & any>;
+    | React.ComponentType<TrunkContext & any>
+    | React.StatelessComponent<TrunkContext & any>;
   render?: (props: any) => React.ReactNode;
 }
 
 const lengthCreator = (length: number): any[] => Array<number>(length).fill(0);
 
-const DefaultNavigation = ({
-  goToPrevious,
-  goToNext,
-  goDirectToPosition,
-  length,
-  position,
-  isBeginning,
-  isEnd
-}: Context) => (
+export const DefaultNavigation: React.FC<TrunkContext> = props => (
   <nav data-testid="BRANCHES_DEFAULT_NAVIGATION">
     <button
-      onClick={goToPrevious}
-      disabled={isBeginning}
+      onClick={props.goToPrevious}
+      disabled={props.isBeginning}
       data-testid="BRANCHES_DEFAULT_PREVIOUS_BUTTON">
       Go to Previous
     </button>
@@ -50,15 +42,15 @@ const DefaultNavigation = ({
           <svg
             width={20}
             height={20}
-            fill={i === position ? " " : " "}
-            onClick={() => goDirectToPosition && goDirectToPosition(i)}
+            fill={i === props.position ? " " : " "}
+            onClick={() => props.goDirectToPosition && props.goDirectToPosition(i)}
           />
         </li>
       ))}
     </ul>
     <button
-      onClick={goToNext}
-      disabled={isEnd}
+      onClick={props.goToNext}
+      disabled={props.isEnd}
       data-testid="BRANCHES_DEFAULT_NEXT_BUTTON">
       Go to Next
     </button>
@@ -67,7 +59,7 @@ const DefaultNavigation = ({
 
 const TrunkContext = React.createContext({});
 
-const nextPosition = ({ position, length, isEnd }: TrunkState) => {
+export const nextPosition = ({ position, length, isEnd }: Partial<TrunkState>) => {
   let currentPosition = position !== length ? position + 1 : length;
   let onlyOne = position === length;
   return {
@@ -77,7 +69,7 @@ const nextPosition = ({ position, length, isEnd }: TrunkState) => {
   };
 };
 
-const prevPosition = ({ position, length }: TrunkState) => {
+export const prevPosition = ({ position, length }: Partial<TrunkState>) => {
   let currentPosition = position !== length ? position - 1 : 0;
 
   return {
@@ -88,24 +80,30 @@ const prevPosition = ({ position, length }: TrunkState) => {
 };
 
 export class Trunk extends React.Component<TrunkProps, TrunkState> {
-  state = {
+  public readonly state = {
     position: 0,
     isEnd: false,
     isBeginning: true,
     length: React.Children.count(this.props.children)
   };
 
-  static defaultProps = {
+  public static defaultProps = {
     navigation: DefaultNavigation
   };
 
-  goDirectToPosition = (position: number) => this.setState({ position });
+  private goDirectToPosition = (position: number): void => {
+    this.setState({ position });
+  };
 
-  goToPrevious = () => this.setState(prevPosition);
+  private goToPrevious = (): void => {
+    this.setState(prevPosition);
+  };
 
-  goToNext = () => this.setState(nextPosition);
+  private goToNext = (): void => {
+    this.setState(nextPosition);
+  };
 
-  render() {
+  public render(): JSX.Element {
     const { children, navigation: BranchNav } = this.props;
     return (
       <TrunkContext.Provider
@@ -116,7 +114,7 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
           goDirectToPosition: this.goDirectToPosition
         }}>
         <TrunkContext.Consumer>
-          {(context: Context) => <BranchNav {...context} />}
+          {(context: TrunkContext) => <BranchNav {...context} />}
         </TrunkContext.Consumer>
         {React.Children.map(
           children,
@@ -133,12 +131,12 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
 // TODO: throw invariant warning if using both Component + render().
 
 export class Branch<T> extends React.Component<BranchProps & T, {}> {
-  render() {
-    const { component: Cx, render, ...props } = this.props as any;
+  public render(): JSX.Element {
+    const { component: Cx, render, ...props } = this.props as BranchProps;
 
     return (
       <TrunkContext.Consumer>
-        {(context: Context) =>
+        {(context: TrunkContext) =>
           Cx ? <Cx {...props} {...context} /> : render({ ...props, ...context })
         }
       </TrunkContext.Consumer>
