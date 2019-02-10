@@ -1,6 +1,8 @@
 # React Branches
 
-Headless Component for tabbed or stepped UI components. Requires React 16+
+[![Build Status](https://travis-ci.com/charliewilco/react-branches.svg?branch=master)](https://travis-ci.com/charliewilco/react-branches)
+
+Headless Component for tabbed or stepped UI components. Requires React 16.3+
 
 
 ## Install 

@@ -37,8 +37,11 @@ const DefaultNavigation = ({
   isBeginning,
   isEnd
 }: Context) => (
-  <nav>
-    <button onClick={goToPrevious} disabled={isBeginning}>
+  <nav data-testid="BRANCHES_DEFAULT_NAVIGATION">
+    <button
+      onClick={goToPrevious}
+      disabled={isBeginning}
+      data-testid="BRANCHES_DEFAULT_PREVIOUS_BUTTON">
       Go to Previous
     </button>
     <ul>
@@ -53,7 +56,10 @@ const DefaultNavigation = ({
         </li>
       ))}
     </ul>
-    <button onClick={goToNext} disabled={isEnd}>
+    <button
+      onClick={goToNext}
+      disabled={isEnd}
+      data-testid="BRANCHES_DEFAULT_NEXT_BUTTON">
       Go to Next
     </button>
   </nav>
