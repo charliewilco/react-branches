@@ -4,25 +4,23 @@
 
 Headless Component for tabbed or stepped UI components. Requires React 16.3+
 
-
-## Install 
+## Install
 
 ```
-yarn add @charliewilco/branches
+yarn add react-branches
 ```
-
 
 ### Usage
 
 ```jsx
-import React, { Component } from 'react'
-import { Trunk, Branch } from '@charliewilco/branches'
+import React, { Component } from "react";
+import { Trunk, Branch } from "react-branches";
 
 const Step = ({ length }) => (
   <div>
-     <h1>Step {length} in the Process</h1>
+    <h1>Step {length} in the Process</h1>
   </div>
-)
+);
 
 export const TabbedNavigation = ({ position, goDirectToPosition }) => (
   <nav>
@@ -38,7 +36,6 @@ export const TabbedNavigation = ({ position, goDirectToPosition }) => (
   </nav>
 );
 
-
 export default class Wizard extends Component {
   render() {
     return (
@@ -47,7 +44,7 @@ export default class Wizard extends Component {
         <Branch component={Step} />
         <Branch component={Step} />
       </Trunk>
-    )
+    );
   }
 }
 ```
@@ -58,7 +55,7 @@ export default class Wizard extends Component {
 
 `<Trunk />` is the root, it only renders `<Branches />`
 
-Props: 
+Props:
 
 - navigation
 - children
@@ -66,7 +63,7 @@ Props:
 
 ### Branch
 
-`<Branch />` 
+`<Branch />`
 
 Props:
 
