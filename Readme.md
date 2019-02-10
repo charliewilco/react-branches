@@ -10,7 +10,7 @@ Headless Component for tabbed or stepped UI components. Requires React 16.3+
 yarn add react-branches
 ```
 
-### Usage
+## Usage
 
 ```jsx
 import React, { Component } from "react";
@@ -24,15 +24,9 @@ const Step = ({ length }) => (
 
 export const TabbedNavigation = ({ position, goDirectToPosition }) => (
   <nav>
-    <button active={position === 0} onClick={() => goDirectToPosition(0)}>
-      stop
-    </button>
-    <button active={position === 1} onClick={() => goDirectToPosition(1)}>
-      stop
-    </button>
-    <button active={position === 2} onClick={() => goDirectToPosition(2)}>
-      stop
-    </button>
+    <button onClick={() => goDirectToPosition(0)}>stop</button>
+    <button onClick={() => goDirectToPosition(1)}>stop</button>
+    <button onClick={() => goDirectToPosition(2)}>stop</button>
   </nav>
 );
 
@@ -55,18 +49,21 @@ export default class Wizard extends Component {
 
 `<Trunk />` is the root, it only renders `<Branches />`
 
-Props:
+#### Props
 
-- navigation
-- children
-- default position ?
+| Name         | Type              | Default             | Description |
+| ------------ | ----------------- | ------------------- | ----------- |
+| `navigation` | `React.Component` | `DefaultNavigation` |             |
+| `children`   | `React.ReactNode` | `null`              |             |
 
 ### Branch
 
 `<Branch />`
 
-Props:
+#### Props
 
-- component
-- render
-- props
+| Name        | Type              | Default             | Description |
+| ----------- | ----------------- | ------------------- | ----------- |
+| `component` | `React.Component` | `DefaultNavigation` |             |
+| `children`  | `React.ReactNode` | `null`              |             |
+| `render`    | `React.ReactNode` | `null`              |             |

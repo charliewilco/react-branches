@@ -116,6 +116,9 @@ export const prevPosition = ({ position, length }: Partial<TrunkState>) => {
   };
 };
 
+/**
+ * Route Management Provider
+ */
 export class Trunk extends React.Component<TrunkProps, TrunkState> {
   public readonly state = {
     position: 0,
@@ -166,7 +169,9 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
 }
 
 // TODO: throw invariant warning if using both Component + render().
-
+/**
+ * Route Target for Internal Routing
+ */
 export class Branch<T> extends React.Component<BranchProps & T, {}> {
   public render(): JSX.Element {
     const { component: Cx, render, ...props } = this.props as BranchProps;
