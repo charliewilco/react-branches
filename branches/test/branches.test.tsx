@@ -28,7 +28,7 @@ describe("Branches", () => {
 
   it("is at position", () => {
     const Previous = prevPosition({ position: 0, length: 4 });
-    // expect(Previous.isBeginning).toBeTruthy();
+    expect(Previous.isBeginning).toBeTruthy();
     expect(Previous.isEnd).toBeFalsy();
   });
 });

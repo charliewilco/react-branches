@@ -28,22 +28,47 @@ export interface BranchProps {
 
 const lengthCreator = (length: number): any[] => Array<number>(length).fill(0);
 
+const Dot: React.FC<{
+  isActive: boolean;
+  onClick: () => void;
+}> = props => {
+  return (
+    <svg width={20} height={20} viewBox="0 0 20 20" onClick={props.onClick}>
+      <circle
+        cx={20 / 2}
+        cy={20 / 2}
+        r={20 / 2 - 1}
+        fill={props.isActive ? "#C4C4C4" : "none"}
+        stroke="#C4C4C4"
+        strokeWidth={2}
+      />
+    </svg>
+  );
+};
+
 export const DefaultNavigation: React.FC<TrunkContext> = props => (
-  <nav data-testid="BRANCHES_DEFAULT_NAVIGATION">
+  <nav data-testid="BRANCHES_DEFAULT_NAVIGATION" style={{ display: "flex" }}>
     <button
       onClick={props.goToPrevious}
       disabled={props.isBeginning}
-      data-testid="BRANCHES_DEFAULT_PREVIOUS_BUTTON">
+      data-testid="BRANCHES_DEFAULT_PREVIOUS_BUTTON"
+      style={{ flex: 1 }}>
       Go to Previous
     </button>
-    <ul>
-      {lengthCreator(length).map((a: any, i: number) => (
-        <li key={i}>
-          <svg
-            width={20}
-            height={20}
-            fill={i === props.position ? " " : " "}
-            onClick={() => props.goDirectToPosition && props.goDirectToPosition(i)}
+    <ul
+      style={{
+        flex: 3,
+        listStyle: "none",
+        display: "flex",
+        justifyContent: "space-between"
+      }}>
+      {lengthCreator(props.length).map((a: any, i: number) => (
+        <li key={i} style={{ margin: 8 }}>
+          <Dot
+            isActive={i === props.position}
+            onClick={() =>
+              props.goDirectToPosition ? props.goDirectToPosition(i) : null
+            }
           />
         </li>
       ))}
@@ -51,7 +76,8 @@ export const DefaultNavigation: React.FC<TrunkContext> = props => (
     <button
       onClick={props.goToNext}
       disabled={props.isEnd}
-      data-testid="BRANCHES_DEFAULT_NEXT_BUTTON">
+      data-testid="BRANCHES_DEFAULT_NEXT_BUTTON"
+      style={{ flex: 1 }}>
       Go to Next
     </button>
   </nav>
@@ -69,8 +95,19 @@ export const nextPosition = ({ position, length, isEnd }: Partial<TrunkState>) =
   };
 };
 
+export const goDirectToPosition = (state: TrunkState, position: number) => {
+  let currentPosition =
+    position === 0 ? 0 : position !== state.length ? position + 1 : state.length;
+
+  return {
+    position,
+    isBeginning: currentPosition === 0,
+    isEnd: currentPosition === state.length
+  };
+};
+
 export const prevPosition = ({ position, length }: Partial<TrunkState>) => {
-  let currentPosition = position !== length ? position - 1 : 0;
+  let currentPosition = position === 0 ? 0 : position !== length ? position - 1 : 0;
 
   return {
     position: currentPosition,
@@ -92,7 +129,7 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
   };
 
   private goDirectToPosition = (position: number): void => {
-    this.setState({ position });
+    this.setState(state => goDirectToPosition(state, position));
   };
 
   private goToPrevious = (): void => {
