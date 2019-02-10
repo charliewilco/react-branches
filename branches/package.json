@@ -6,7 +6,7 @@
   "repository": "charliewilco/react-branches",
   "scripts": {
     "build": "tsc",
-    "prepare": "yarn build",
+    "prepare": "tsc",
     "dev": "tsc -w",
     "test": "jest"
   },
