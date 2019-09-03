@@ -13,7 +13,7 @@ yarn add react-branches
 ## Usage
 
 ```jsx
-import React, { Component } from "react";
+import React from "react";
 import { Trunk, Branch } from "react-branches";
 
 const Step = ({ length }) => (
@@ -30,7 +30,7 @@ export const TabbedNavigation = ({ position, goDirectToPosition }) => (
   </nav>
 );
 
-export default class Wizard extends Component {
+export default class Wizard extends React.Component {
   render() {
     return (
       <Trunk navigation={TabbedNavigation}>

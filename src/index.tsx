@@ -13,16 +13,17 @@ export interface NavActions {
   goToNext: () => void;
 }
 
-export interface TrunkContext extends TrunkState, NavActions {}
+export interface ITrunkContext extends TrunkState, NavActions {}
 
 export interface TrunkProps {
   navigation: new (props: any) => React.Component<any>;
+  children: React.ReactNode;
 }
 
-export interface BranchProps {
+export interface BranchProps<T> {
   component?:
-    | React.ComponentType<TrunkContext & any>
-    | React.StatelessComponent<TrunkContext & any>;
+    | React.ComponentType<ITrunkContext & T & any>
+    | React.ComponentType<void>;
   render?: (props: any) => React.ReactNode;
 }
 
@@ -46,13 +47,14 @@ const Dot: React.FC<{
   );
 };
 
-export const DefaultNavigation: React.FC<TrunkContext> = props => (
+export const DefaultNavigation: React.FC<ITrunkContext> = props => (
   <nav data-testid="BRANCHES_DEFAULT_NAVIGATION" style={{ display: "flex" }}>
     <button
       onClick={props.goToPrevious}
       disabled={props.isBeginning}
       data-testid="BRANCHES_DEFAULT_PREVIOUS_BUTTON"
-      style={{ flex: 1 }}>
+      style={{ flex: 1 }}
+    >
       Go to Previous
     </button>
     <ul
@@ -60,8 +62,9 @@ export const DefaultNavigation: React.FC<TrunkContext> = props => (
         flex: 3,
         listStyle: "none",
         display: "flex",
-        justifyContent: "space-between"
-      }}>
+        justifyContent: "space-between",
+      }}
+    >
       {lengthCreator(props.length).map((a: any, i: number) => (
         <li key={i} style={{ margin: 8 }}>
           <Dot
@@ -77,42 +80,48 @@ export const DefaultNavigation: React.FC<TrunkContext> = props => (
       onClick={props.goToNext}
       disabled={props.isEnd}
       data-testid="BRANCHES_DEFAULT_NEXT_BUTTON"
-      style={{ flex: 1 }}>
+      style={{ flex: 1 }}
+    >
       Go to Next
     </button>
   </nav>
 );
 
-const TrunkContext = React.createContext({});
+const TrunkContext = React.createContext<ITrunkContext>({} as ITrunkContext);
 
-export const nextPosition = ({ position, length, isEnd }: Partial<TrunkState>) => {
+export const nextPosition = (position: number, length: number) => {
   let currentPosition = position !== length ? position + 1 : length;
   let onlyOne = position === length;
   return {
     position: currentPosition,
     isBeginning: currentPosition === 0,
-    isEnd: onlyOne || currentPosition === length - 1
+    isEnd: onlyOne || currentPosition === length - 1,
   };
 };
 
 export const goDirectToPosition = (state: TrunkState, position: number) => {
   let currentPosition =
-    position === 0 ? 0 : position !== state.length ? position + 1 : state.length;
+    position === 0
+      ? 0
+      : position !== state.length
+      ? position + 1
+      : state.length;
 
   return {
     position,
     isBeginning: currentPosition === 0,
-    isEnd: currentPosition === state.length
+    isEnd: currentPosition === state.length,
   };
 };
 
-export const prevPosition = ({ position, length }: Partial<TrunkState>) => {
-  let currentPosition = position === 0 ? 0 : position !== length ? position - 1 : 0;
+export const prevPosition = (position: number, length: number) => {
+  let currentPosition =
+    position === 0 ? 0 : position !== length ? position - 1 : 0;
 
   return {
     position: currentPosition,
     isBeginning: currentPosition === 0,
-    isEnd: currentPosition === length - 1
+    isEnd: currentPosition === length - 1,
   };
 };
 
@@ -124,11 +133,11 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
     position: 0,
     isEnd: false,
     isBeginning: true,
-    length: React.Children.count(this.props.children)
+    length: React.Children.count(this.props.children),
   };
 
   public static defaultProps = {
-    navigation: DefaultNavigation
+    navigation: DefaultNavigation,
   };
 
   private goDirectToPosition = (position: number): void => {
@@ -136,11 +145,11 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
   };
 
   private goToPrevious = (): void => {
-    this.setState(prevPosition);
+    this.setState(state => prevPosition(state.position, state.length));
   };
 
   private goToNext = (): void => {
-    this.setState(nextPosition);
+    this.setState(state => nextPosition(state.position, state.length));
   };
 
   public render(): JSX.Element {
@@ -151,13 +160,14 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
           ...this.state,
           goToPrevious: this.goToPrevious,
           goToNext: this.goToNext,
-          goDirectToPosition: this.goDirectToPosition
-        }}>
+          goDirectToPosition: this.goDirectToPosition,
+        }}
+      >
         <TrunkContext.Consumer>
-          {(context: TrunkContext) => <BranchNav {...context} />}
+          {(context: ITrunkContext) => <BranchNav {...context} />}
         </TrunkContext.Consumer>
         {React.Children.map(
-          children,
+          children as React.ReactElement<any>,
           (child: React.ReactElement<any>, idx: number) =>
             // child.type.name === 'Branch' &&
             this.state.position === idx &&
@@ -172,16 +182,22 @@ export class Trunk extends React.Component<TrunkProps, TrunkState> {
 /**
  * Route Target for Internal Routing
  */
-export class Branch<T> extends React.Component<BranchProps & T, {}> {
+export class Branch<T> extends React.Component<BranchProps<T>, {}> {
+  public static contextType: React.Context<ITrunkContext> = TrunkContext;
   public render(): JSX.Element {
-    const { component: Cx, render, ...props } = this.props as BranchProps;
+    const { component, render, children, ...props } = this.props;
 
     return (
-      <TrunkContext.Consumer>
-        {(context: TrunkContext) =>
-          Cx ? <Cx {...props} {...context} /> : render({ ...props, ...context })
-        }
-      </TrunkContext.Consumer>
+      <>
+        {component
+          ? React.createElement(component, {
+              ...(props as T),
+              ...this.context,
+            })
+          : render
+          ? render({ ...(props as T), ...this.context })
+          : null}
+      </>
     );
   }
 }
